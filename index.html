@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SIRA Guinea — 100-Day Implementation Pact</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <div class="flag-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="brand-title">SIRA GUINEA</div>
+          <div class="brand-subtitle">100-Day Implementation Pact</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
+    </header>
+
+    <nav class="drawer" id="drawer" aria-hidden="true">
+      <div class="drawer-header">
+        <strong>Navigation</strong>
+        <button class="icon-btn" id="closeMenuBtn" aria-label="Fermer le menu">✕</button>
+      </div>
+      <button class="nav-item active" data-view="overview">Executive overview</button>
+      <button class="nav-item" data-view="effectiveness">Effectiveness</button>
+      <button class="nav-item" data-view="readiness">Implementation groups</button>
+      <button class="nav-item" data-view="week">Priority actions</button>
+      <button class="nav-item" data-view="actions">All actions</button>
+      <button class="nav-item" data-view="info">Information needed</button>
+    </nav>
+    <div class="scrim" id="scrim"></div>
+
+    <main>
+      <section class="view active" id="overviewView">
+        <div class="meta-row">
+          <span>Pact dates: to be confirmed</span>
+          <strong>Working management version</strong>
+        </div>
+
+        <section class="hero-card card">
+          <div class="section-label">Overall readiness</div>
+          <div class="hero-grid">
+            <div class="progress-ring" style="--p:18"><span>18%</span></div>
+            <div class="hero-stat">
+              <div class="big-number">—</div>
+              <div class="muted">days remaining: to be confirmed</div>
+            </div>
+          </div>
+          <div class="progress-bar"><span style="width:18%"></span></div>
+        </section>
+
+        <button class="card effectiveness-card clickable" data-go="effectiveness">
+          <div class="card-icon blue">▣</div>
+          <div class="grow">
+            <div class="row-between"><strong>Effectiveness</strong><strong>60%</strong></div>
+            <div class="subtext">3 sur 5 conditions remplies</div>
+            <div class="progress-bar compact"><span style="width:60%"></span></div>
+            <div class="row-between tiny"><span class="pill amber">In progress</span><span>Target date: to be confirmed</span></div>
+          </div>
+          <div class="chevron">›</div>
+        </button>
+
+        <div class="status-grid">
+          <div class="mini-card"><span class="dot green"></span><strong>12</strong><span>On track</span></div>
+          <div class="mini-card"><span class="dot amber"></span><strong>6</strong><span>At risk</span></div>
+          <div class="mini-card"><span class="dot red"></span><strong>3</strong><span>Overdue</span></div>
+        </div>
+
+        <button class="alert-card red-tint clickable" data-go="week">
+          <div class="alert-icon">!</div>
+          <div class="grow"><strong>Items requiring attention</strong><div>3 éléments à suivre de près</div></div>
+          <div class="chevron">›</div>
+        </button>
+
+        <button class="alert-card blue-tint clickable" data-go="week">
+          <div class="alert-icon blue-icon">▤</div>
+          <div class="grow"><strong>Priority actions</strong><div>Priority set importantes</div></div>
+          <div class="chevron">›</div>
+        </button>
+
+        <button class="alert-card green-tint clickable" data-go="readiness">
+          <div class="alert-icon green-icon">⚑</div>
+          <div class="grow"><strong>Next major milestone</strong><div>PCU operational and first contracts mobilized</div><div class="tiny">Jour 30 · 25 days remaining: to be confirmed</div></div>
+          <div class="chevron">›</div>
+        </button>
+
+        <button class="primary-btn" data-go="actions">View detailed tracker <span>→</span></button>
+        <div class="last-updated">Working tracker — factual status fields still require confirmation</div>
+      </section>
+
+      <section class="view" id="effectivenessView">
+        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Effectiveness</h1></div>
+        <section class="card effectiveness-summary">
+          <div class="row-between"><strong>3 sur 5 conditions remplies</strong><strong>60%</strong></div>
+          <div class="progress-bar"><span style="width:60%"></span></div>
+          <div class="summary-note"><span class="pill amber">In progress</span><span>Target date: to be confirmed</span></div>
+          <p>Deux conditions restent à finaliser avant la mise en vigueur.</p>
+        </section>
+        <h2>Effectiveness actions</h2>
+        <div id="effectivenessList" class="stack"></div>
+      </section>
+
+      <section class="view" id="readinessView">
+        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Implementation groups</h1></div>
+        <p class="intro">Five management groups covering effectiveness through implementation launch.</p>
+        <div id="readinessList" class="stack"></div>
+      </section>
+
+      <section class="view" id="weekView">
+        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Priority actions</h1></div>
+        <div class="meta-row"><span>Priority / critical-path actions</span><span>Priority set</span></div>
+        <div id="weekList" class="stack"></div>
+      </section>
+
+      <section class="view" id="actionsView">
+        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>All actions</h1></div>
+        <div class="filters">
+          <select id="groupFilter" aria-label="Filter by group"><option value="all">All groups</option></select>
+          <select id="statusFilter" aria-label="Filter by status">
+            <option value="all">All statuses</option>
+            <option value="To confirm">To confirm</option>
+            <option value="On track">On track</option>
+            <option value="At risk">At risk</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <input id="searchInput" type="search" placeholder="Search actions…" />
+        </div>
+        <div id="actionsList" class="stack"></div>
+      </section>
+
+      <section class="view" id="infoView">
+        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Information needed</h1></div>
+        <p class="intro">Inputs required to turn this working pact into a dated, accountable execution plan.</p>
+        <div id="infoList" class="stack"></div>
+      </section>
+
+      <section class="view" id="detailView">
+        <div class="page-title-row"><button class="back-btn" id="detailBack">‹</button><h1>Action detail</h1></div>
+        <div id="detailContent"></div>
+      </section>
+    </main>
+  </div>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
