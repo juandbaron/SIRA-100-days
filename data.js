@@ -355,7 +355,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.1",
     "title": "Establish/confirm Designated Account and project banking arrangements",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "MEFB / PIU",
     "timing": "Before first disbursement",
     "basis": "Operational",
@@ -371,7 +371,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.2",
     "title": "Establish authorized signatories",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "MEFB / MENA-ETFP",
     "timing": "Before transactions",
     "basis": "Operational",
@@ -387,7 +387,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.3",
     "title": "Establish Client Connection access",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU / MEFB",
     "timing": "Immediate",
     "basis": "Operational",
@@ -403,7 +403,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.4",
     "title": "Establish STEP access for the procurement team",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU",
     "timing": "Immediate",
     "basis": "Operational",
@@ -419,7 +419,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.5",
     "title": "Review/update Procurement Plan in STEP",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU Procurement",
     "timing": "Before launch of packages",
     "basis": "PAD / Procurement requirement",
@@ -435,7 +435,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.6",
     "title": "Review/update PPSD as required",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU Procurement / technical teams",
     "timing": "Before / alongside procurement acceleration",
     "basis": "PAD",
@@ -451,7 +451,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.7",
     "title": "Keep all approved procurements current in STEP",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU Procurement",
     "timing": "Continuous",
     "basis": "PAD",
@@ -467,7 +467,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.8",
     "title": "Configure project accounting system",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU FM",
     "timing": "Early",
     "basis": "Operational",
@@ -483,7 +483,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.9",
     "title": "Purchase and configure multi-project management software",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU",
     "timing": "By Month 3",
     "basis": "Mandatory",
@@ -499,7 +499,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.10",
     "title": "Establish filing/archiving system including STEP procurement records",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU",
     "timing": "Early",
     "basis": "PAD risk mitigation",
@@ -515,7 +515,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.11",
     "title": "Establish contract-management tracker/system",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU Procurement / technical teams",
     "timing": "Early",
     "basis": "PAD risk mitigation",
@@ -531,7 +531,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.12",
     "title": "Prepare and adopt the Project Operations Manual (POM)",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "MENA-ETFP / PIU",
     "timing": "By Month 1",
     "basis": "Mandatory",
@@ -547,7 +547,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.13",
     "title": "Prepare first PTAB / Annual Work Plan and Budget",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU / Component Managers",
     "timing": "Early and per legal annual deadline",
     "basis": "Mandatory annual instrument",
@@ -563,7 +563,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.14",
     "title": "Use November 15 as the unified internal AWPB deadline",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU / Steering Committee",
     "timing": "Annual",
     "basis": "Recommendation",
@@ -579,7 +579,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.15",
     "title": "Establish implementation/results dashboard",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU M&E",
     "timing": "Within first month",
     "basis": "Management",
@@ -595,7 +595,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.16",
     "title": "Launch procurement of external audit firm",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU FM / Procurement",
     "timing": "Immediate",
     "basis": "Management acceleration",
@@ -611,7 +611,7 @@ const MOCK_ACTIONS = [
   {
     "id": "3.17",
     "title": "Sign external auditor contract",
-    "axis": "3. Fiduciary systems, planning & operational access",
+    "axis": "3. Fiduciary, planning & ops",
     "owner": "PIU",
     "timing": "Target Day 100; legal outer limit Month 5",
     "basis": "Mandatory by Month 5",

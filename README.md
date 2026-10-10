@@ -15,3 +15,12 @@ Current implementation status has intentionally been set to **To confirm** unles
 The target "20 contracts signed by effectiveness" is retained as a management target and should be confirmed package-by-package for procurement and financing compliance.
 
 Open `index.html` in a browser. No server is required.
+
+
+## Version 5 update
+- Effectiveness remains the first progress box.
+- Groups 2–5 now appear directly underneath as progress boxes in the same visual style.
+- Clicking each Group 2–5 progress box opens the activity list for that group.
+- Removed Items requiring attention.
+- Removed the separate Implementation by group list.
+- Removed Priority actions and the redundant related view.

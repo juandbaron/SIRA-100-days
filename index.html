@@ -9,15 +9,17 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand-wrap">
-        <div class="flag-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div>
-          <div class="brand-title">SIRA Guinea (P511651)</div>
-          <div class="brand-subtitle">100-Day Implementation Pact</div>
-          <div class="brand-ttl">TTL: Juan Baron</div>
+      <div class="brand-row">
+        <div class="brand-wrap">
+          <div class="flag-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <div class="brand-title">SIRA Guinea (P511651)</div>
+            <div class="brand-subtitle">100-Day Implementation Pact</div>
+            <div class="brand-ttl">Juan Baron <span class="brand-sep">·</span> Justine Bailliart</div>
+          </div>
         </div>
+        <button class="icon-btn" id="menuBtn" aria-label="Open menu">☰</button>
       </div>
-      <button class="icon-btn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
     </header>
 
     <nav class="drawer" id="drawer" aria-hidden="true">
@@ -27,8 +29,6 @@
       </div>
       <button class="nav-item active" data-view="overview">Executive overview</button>
       <button class="nav-item" data-view="effectiveness">Effectiveness</button>
-      <button class="nav-item" data-view="readiness">Implementation groups</button>
-      <button class="nav-item" data-view="week">Priority actions</button>
       <button class="nav-item" data-view="actions">All actions</button>
       <button class="nav-item" data-view="info">Information needed</button>
     </nav>
@@ -36,33 +36,31 @@
 
     <main>
       <section class="view active" id="overviewView">
-        <div class="meta-row">
-          <span>Pact dates: 15 Oct. 2026 — 23 Jan. 2027</span>
-          <strong>Working management version</strong>
-        </div>
 
-        <section class="hero-card card">
+        <section class="hero-card card compact-readiness">
           <div class="section-label">Overall readiness</div>
-          <div class="hero-grid">
+          <div class="hero-grid compact-hero-grid">
             <div class="progress-ring" style="--p:18"><span>18%</span></div>
-            <div class="hero-stat">
-              <div class="big-number">—</div>
-              <div class="muted">days remaining: to be confirmed</div>
+            <div class="hero-copy">
+              <div class="remaining-line"><strong class="big-number">—</strong><span class="muted">days remaining</span></div>
+              <div class="pact-dates">15 Oct. 2026 — 23 Jan. 2027</div>
+              <div class="pact-day">Day 0 of 100</div>
             </div>
           </div>
           <div class="progress-bar"><span style="width:18%"></span></div>
         </section>
 
         <button class="card effectiveness-card clickable" data-go="effectiveness">
-          <div class="card-icon blue">▣</div>
+          <div class="card-icon blue">1</div>
           <div class="grow">
-            <div class="row-between"><strong>Effectiveness</strong><strong>60%</strong></div>
-            <div class="subtext">3 sur 5 conditions remplies</div>
-            <div class="progress-bar compact"><span style="width:60%"></span></div>
+            <div class="row-between"><strong>Effectiveness</strong><strong>20%</strong></div>
+            <div class="progress-bar compact"><span style="width:20%"></span></div>
             <div class="row-between tiny"><span class="pill amber">In progress</span><span>Target date: 30 Nov. 2026</span></div>
           </div>
           <div class="chevron">›</div>
         </button>
+
+        <div id="implementationGroupCards" class="implementation-group-stack"></div>
 
         <div class="status-grid">
           <div class="mini-card"><span class="dot green"></span><strong>12</strong><span>On track</span></div>
@@ -70,53 +68,17 @@
           <div class="mini-card"><span class="dot red"></span><strong>3</strong><span>Overdue</span></div>
         </div>
 
-        <button class="alert-card red-tint clickable" data-go="week">
-          <div class="alert-icon">!</div>
-          <div class="grow"><strong>Items requiring attention</strong><div>3 éléments à suivre de près</div></div>
-          <div class="chevron">›</div>
-        </button>
-
-        <section class="landing-groups card">
-          <div class="section-label">Implementation by group</div>
-          <div class="landing-group-list">
-            <button class="landing-group-item clickable" data-go="effectiveness">
-              <span class="group-no">1</span>
-              <span class="group-copy"><strong>Effectiveness</strong><small>Conditions, confirmations and Day 0 readiness</small></span>
-              <span class="chevron">›</span>
-            </button>
-            <button class="landing-group-item clickable grp2" data-go="readiness">
-              <span class="group-no">2</span>
-              <span class="group-copy"><strong>PIU establishment & staffing</strong><small>Team, governance, focal points and operating structure</small></span>
-              <span class="chevron">›</span>
-            </button>
-            <button class="landing-group-item clickable grp3" data-go="readiness">
-              <span class="group-no">3</span>
-              <span class="group-copy"><strong>Fiduciary systems, planning & operational access</strong><small>Accounts, STEP, signatures, manuals, plans and audit</small></span>
-              <span class="chevron">›</span>
-            </button>
-            <button class="landing-group-item clickable grp4" data-go="readiness">
-              <span class="group-no">4</span>
-              <span class="group-copy"><strong>Administration & logistics</strong><small>Office, equipment, connectivity and administrative setup</small></span>
-              <span class="chevron">›</span>
-            </button>
-            <button class="landing-group-item clickable grp5" data-go="readiness">
-              <span class="group-no">5</span>
-              <span class="group-copy"><strong>Implementation launch</strong><small>First 20 procurements, partnerships, safeguards and mobilization</small></span>
-              <span class="chevron">›</span>
-            </button>
-          </div>
-        </section>
-
         <button class="primary-btn" data-go="actions">View detailed tracker <span>→</span></button>
         <div class="last-updated">Last updated: 10 October 2026</div>
         <div class="created-by">Created by Juan Baron</div>
+        <div class="wbg-attribution">World Bank Group</div>
       </section>
 
       <section class="view" id="effectivenessView">
         <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Effectiveness</h1></div>
         <section class="card effectiveness-summary">
-          <div class="row-between"><strong>3 sur 5 conditions remplies</strong><strong>60%</strong></div>
-          <div class="progress-bar"><span style="width:60%"></span></div>
+          <div class="row-between"><strong>3 sur 5 conditions remplies</strong><strong>20%</strong></div>
+          <div class="progress-bar"><span style="width:20%"></span></div>
           <div class="summary-note"><span class="pill amber">In progress</span><span>Target date: 30 Nov. 2026</span></div>
           <p>Deux conditions restent à finaliser avant la mise en vigueur.</p>
         </section>
@@ -124,16 +86,11 @@
         <div id="effectivenessList" class="stack"></div>
       </section>
 
-      <section class="view" id="readinessView">
-        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Implementation groups</h1></div>
-        <p class="intro">Five management groups covering effectiveness through implementation launch.</p>
-        <div id="readinessList" class="stack"></div>
-      </section>
-
-      <section class="view" id="weekView">
-        <div class="page-title-row"><button class="back-btn" data-go="overview">‹</button><h1>Priority actions</h1></div>
-        <div class="meta-row"><span>Priority / critical-path actions</span><span>Priority set</span></div>
-        <div id="weekList" class="stack"></div>
+      <section class="view" id="groupView">
+        <div class="page-title-row"><button class="back-btn" id="groupBack">‹</button><h1 id="groupViewTitle">Implementation group</h1></div>
+        <section class="card effectiveness-summary" id="groupViewSummary"></section>
+        <h2>Activities</h2>
+        <div id="groupActionList" class="stack"></div>
       </section>
 
       <section class="view" id="actionsView">

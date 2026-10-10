@@ -3,7 +3,7 @@ const actions = MOCK_ACTIONS;
 const PACT_START = new Date(Date.UTC(2026, 9, 15));
 const PACT_END = new Date(Date.UTC(2027, 0, 23));
 const effectiveness = actions.filter(a=>a.type==='Effectiveness');
-const axisMeta = [["1. Effectiveness", "Legal and operational conditions required to reach effectiveness", "axis-blue", "✓"], ["2. PIU establishment & staffing", "Team, governance, focal points and implementation structure", "axis-purple", "◉"], ["3. Fiduciary systems, planning & operational access", "Accounts, STEP, signatures, manuals, plans and audit", "axis-orange", "▦"], ["4. Administration & logistics", "Office, equipment, connectivity and administrative setup", "axis-green", "⌂"], ["5. Implementation launch", "First 20 procurements, partnerships, safeguards and contract mobilization", "axis-slate", "▶"]];
+const axisMeta = [["1. Effectiveness", "Legal and operational conditions required to reach effectiveness", "axis-blue", "✓"], ["2. PIU establishment & staffing", "Team, governance, focal points and implementation structure", "axis-purple", "◉"], ["3. Fiduciary, planning & ops", "Accounts, STEP, signatures, manuals, plans and audit", "axis-orange", "▦"], ["4. Administration & logistics", "Office, equipment, connectivity and administrative setup", "axis-green", "⌂"], ["5. Implementation launch", "First 20 procurements, partnerships, safeguards and contract mobilization", "axis-slate", "▶"]];
 const readiness = axisMeta.map(([title,sub,cls,icon])=>{
   const subset=actions.filter(a=>a.axis===title);
   return {title,sub,cls,icon,
@@ -22,20 +22,74 @@ function renderEffectiveness(){
   el.innerHTML=effectiveness.map(a=>`<div class="list-card" data-action-id="${a.id}"><div class="list-top"><div><div class="status-line"><span class="dot ${statusClass(a.status)}"></span><div class="list-title">${a.title}</div></div><div class="list-meta">${a.owner}</div></div><div class="chevron">›</div></div><div class="list-footer">${statusLabel(a.status)}<span class="deadline">Target: ${a.timing}</span></div></div>`).join('');
   bindActionCards();
 }
-function renderReadiness(){
-  const el=document.getElementById('readinessList');
-  el.innerHTML=readiness.map((r,idx)=>`<div class="list-card readiness-card no-click"><div class="readiness-head"><div class="axis-icon ${r.cls}">${r.icon}</div><div class="grow"><div class="axis-title">${r.title}</div><div class="axis-sub">${r.sub}</div></div></div><div class="axis-progress"><div class="progress-bar"><span style="width:${r.progress}%"></span></div><strong>${r.progress}%</strong></div><div class="axis-counts"><span><i class="dot green"></i>${r.counts[0]}</span><span><i class="dot amber"></i>${r.counts[1]}</span><span><i class="dot red"></i>${r.counts[2]}</span></div></div>`).join('');
+
+function renderImplementationGroups(){
+  const el=document.getElementById('implementationGroupCards');
+  if(!el) return;
+
+  const groups=readiness.filter(r=>/^[2-5]\./.test(r.title));
+  el.innerHTML=groups.map(r=>{
+    const subset=actions.filter(a=>a.axis===r.title);
+    const completed=subset.filter(a=>a.status==='Completed').length;
+    const onTrack=subset.filter(a=>a.status==='On track').length;
+    const atRisk=subset.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
+    const overdue=subset.filter(a=>a.status==='Overdue').length;
+    const groupNo=r.title.split('.')[0];
+    const shortTitle=r.title.replace(/^\d+\.\s*/, '');
+
+    let state='To confirm', pill='amber';
+    if(overdue>0){ state='Overdue'; pill='red'; }
+    else if(atRisk===0 && subset.length>0){ state='On track'; pill='green'; }
+
+    return `<button class="card effectiveness-card group-progress-card grp${groupNo} clickable" data-group-title="${r.title}">
+      <div class="card-icon">${groupNo}</div>
+      <div class="grow">
+        <div class="row-between"><strong>${shortTitle}</strong><strong>${r.progress}%</strong></div>
+        <div class="progress-bar compact"><span style="width:${r.progress}%"></span></div>
+      </div>
+      <div class="chevron">›</div>
+    </button>`;
+  }).join('');
+
+  bindGroupCards();
 }
+
+function bindGroupCards(){
+  document.querySelectorAll('[data-group-title]').forEach(el=>{
+    el.addEventListener('click',()=>openGroup(el.dataset.groupTitle));
+  });
+}
+
+function openGroup(title){
+  const meta=readiness.find(r=>r.title===title);
+  const subset=actions.filter(a=>a.axis===title);
+  if(!meta) return;
+
+  const completed=subset.filter(a=>a.status==='Completed').length;
+  const onTrack=subset.filter(a=>a.status==='On track').length;
+  const atRisk=subset.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
+  const overdue=subset.filter(a=>a.status==='Overdue').length;
+
+  document.getElementById('groupViewTitle').textContent=title;
+  document.getElementById('groupViewSummary').innerHTML=`
+    <div class="row-between"><strong>${completed} of ${subset.length} completed</strong><strong>${meta.progress}%</strong></div>
+    <div class="progress-bar"><span style="width:${meta.progress}%"></span></div>
+    <div class="summary-note">
+      <span>${onTrack} on track</span>
+      <span>${atRisk} at risk/to confirm</span>
+      <span>${overdue} overdue</span>
+    </div>
+    <p>${meta.sub}</p>`;
+
+  document.getElementById('groupActionList').innerHTML=subset.map(actionCard).join('');
+  bindActionCards();
+  showView('group');
+}
+
 function actionCard(a){
   return `<div class="list-card" data-action-id="${a.id}"><div class="list-top"><div><div class="status-line"><span class="dot ${statusClass(a.status)}"></span><div>${statusLabel(a.status)}</div></div><div class="list-title" style="margin-top:8px">${a.id} · ${a.title}</div><div class="list-meta">${a.owner}<br>${a.axis}</div></div><div class="chevron">›</div></div><div class="list-footer"><span class="deadline">${a.timing}</span><strong>${a.progress||0}%</strong></div></div>`;
 }
 function bindActionCards(){document.querySelectorAll('[data-action-id]').forEach(el=>el.addEventListener('click',()=>openAction(el.dataset.actionId)));}
-function renderWeek(){
-  const priority=actions.filter(a=>a.week);
-  document.querySelector('#weekView .meta-row span:last-child').textContent=priority.length+' actions';
-  document.getElementById('weekList').innerHTML=priority.map(actionCard).join('');
-  bindActionCards();
-}
 function renderActions(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const status=document.getElementById('statusFilter').value;
@@ -82,11 +136,12 @@ function showView(name){
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 document.getElementById('detailBack').addEventListener('click',()=>showView('actions'));
+document.getElementById('groupBack').addEventListener('click',()=>showView('overview'));
 document.getElementById('statusFilter').addEventListener('change',renderActions);
 document.getElementById('groupFilter').addEventListener('change',renderActions);
 document.getElementById('searchInput').addEventListener('input',renderActions);
 
-populateGroupFilter(); renderEffectiveness(); renderReadiness(); renderWeek(); renderActions(); renderInfo();
+populateGroupFilter(); renderEffectiveness(); renderImplementationGroups(); renderActions(); renderInfo();
 
 // Executive overview synchronization
 const avg=Math.round(actions.reduce((s,a)=>s+(a.progress||0),0)/actions.length);
@@ -95,14 +150,14 @@ const effPct=effectiveness.length?Math.round(doneEff/effectiveness.length*100):0
 document.querySelector('.progress-ring').style.setProperty('--p',avg);
 document.querySelector('.progress-ring span').textContent=avg+'%';
 document.querySelector('.hero-card .progress-bar span').style.width=avg+'%';
-document.querySelector('.effectiveness-card .row-between strong:last-child').textContent=effPct+'%';
-document.querySelector('.effectiveness-card .subtext').textContent=doneEff+' of '+effectiveness.length+' effectiveness actions confirmed completed';
-document.querySelector('.effectiveness-card .progress-bar span').style.width=effPct+'%';
+document.querySelector('[data-go="effectiveness"] .row-between strong:last-child').textContent=effPct+'%';
+const effSub=document.querySelector('.effectiveness-card .subtext');
+if(effSub) effSub.textContent=doneEff+' of '+effectiveness.length+' effectiveness actions confirmed completed';
+document.querySelector('[data-go="effectiveness"] .progress-bar span').style.width=effPct+'%';
 const statEls=document.querySelectorAll('.status-grid .mini-card strong');
 statEls[0].textContent=actions.filter(a=>a.status==='On track'||a.status==='Completed').length;
 statEls[1].textContent=actions.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
 statEls[2].textContent=actions.filter(a=>a.status==='Overdue').length;
-document.querySelector('.red-tint .grow div').textContent=actions.filter(a=>a.status==='At risk'||a.status==='Overdue'||a.status==='To confirm').length+' actions requiring confirmation or attention';
 
 // Effectiveness summary
 const es=document.querySelector('#effectivenessView .effectiveness-summary');
@@ -140,19 +195,16 @@ function updatePactTimeline(){
     remainingDays = Math.max(0, Math.min(totalDays, remainingDays));
   }
 
-  const meta = document.querySelector('#overviewView .meta-row');
-  if (meta) {
-    const spans = meta.querySelectorAll('span, strong');
-    if (spans.length >= 2) {
-      spans[0].textContent = '15 Oct. 2026 — 23 Jan. 2027';
-      spans[1].textContent = `Day ${elapsedDays} of 100`;
-    }
-  }
+  const pactDatesEl = document.querySelector('.pact-dates');
+  if (pactDatesEl) pactDatesEl.textContent = '15 Oct. 2026 — 23 Jan. 2027';
 
-  const remainingEl = document.querySelector('.hero-stat .big-number');
+  const pactDayEl = document.querySelector('.pact-day');
+  if (pactDayEl) pactDayEl.textContent = `Day ${elapsedDays} of 100`;
+
+  const remainingEl = document.querySelector('.remaining-line .big-number');
   if (remainingEl) remainingEl.textContent = remainingDays;
 
-  const remainingLabel = document.querySelector('.hero-stat .muted');
+  const remainingLabel = document.querySelector('.remaining-line .muted');
   if (remainingLabel) remainingLabel.textContent = remainingDays === 1 ? 'day remaining' : 'days remaining';
 }
 
