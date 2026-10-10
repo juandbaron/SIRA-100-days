@@ -1,7 +1,9 @@
 
 const actions = MOCK_ACTIONS;
+const PACT_START = new Date(Date.UTC(2026, 9, 15));
+const PACT_END = new Date(Date.UTC(2027, 0, 23));
 const effectiveness = actions.filter(a=>a.type==='Effectiveness');
-const axisMeta = [["1. Effectiveness", "Legal and operational conditions required to reach effectiveness", "axis-blue", "✓"], ["2. PIU/PCU establishment & staffing", "Team, governance, focal points and implementation structure", "axis-purple", "◉"], ["3. Fiduciary systems, planning & operational access", "Accounts, STEP, signatures, manuals, plans and audit", "axis-orange", "▦"], ["4. Administration & logistics", "Office, equipment, connectivity and administrative setup", "axis-green", "⌂"], ["5. Implementation launch", "First 20 procurements, partnerships, safeguards and contract mobilization", "axis-slate", "▶"]];
+const axisMeta = [["1. Effectiveness", "Legal and operational conditions required to reach effectiveness", "axis-blue", "✓"], ["2. PIU establishment & staffing", "Team, governance, focal points and implementation structure", "axis-purple", "◉"], ["3. Fiduciary systems, planning & operational access", "Accounts, STEP, signatures, manuals, plans and audit", "axis-orange", "▦"], ["4. Administration & logistics", "Office, equipment, connectivity and administrative setup", "axis-green", "⌂"], ["5. Implementation launch", "First 20 procurements, partnerships, safeguards and contract mobilization", "axis-slate", "▶"]];
 const readiness = axisMeta.map(([title,sub,cls,icon])=>{
   const subset=actions.filter(a=>a.axis===title);
   return {title,sub,cls,icon,
@@ -100,7 +102,6 @@ const statEls=document.querySelectorAll('.status-grid .mini-card strong');
 statEls[0].textContent=actions.filter(a=>a.status==='On track'||a.status==='Completed').length;
 statEls[1].textContent=actions.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
 statEls[2].textContent=actions.filter(a=>a.status==='Overdue').length;
-document.querySelector('.blue-tint .grow div').textContent=actions.filter(a=>a.week).length+' critical / priority actions';
 document.querySelector('.red-tint .grow div').textContent=actions.filter(a=>a.status==='At risk'||a.status==='Overdue'||a.status==='To confirm').length+' actions requiring confirmation or attention';
 
 // Effectiveness summary
@@ -109,5 +110,50 @@ if(es){
   es.querySelector('.row-between strong:first-child').textContent=doneEff+' of '+effectiveness.length+' confirmed completed';
   es.querySelector('.row-between strong:last-child').textContent=effPct+'%';
   es.querySelector('.progress-bar span').style.width=effPct+'%';
-  es.querySelector('p').textContent='Status remains provisional until the Government/PCU provides the current effectiveness evidence.';
+  es.querySelector('p').textContent='Status remains provisional until the Government/PIU provides the current effectiveness evidence.';
 }
+
+
+// Effectiveness target date
+document.querySelectorAll('.effectiveness-card .tiny span:last-child, #effectivenessView .summary-note span:last-child')
+  .forEach(el => el.textContent = 'Target date: 30 Nov. 2026');
+
+
+// Automatic pact timeline: updates whenever the dashboard opens.
+function updatePactTimeline(){
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+
+  const totalDays = Math.round((PACT_END - PACT_START) / MS_PER_DAY); // 100
+  let elapsedDays = Math.floor((todayUTC - PACT_START) / MS_PER_DAY);
+  let remainingDays = Math.ceil((PACT_END - todayUTC) / MS_PER_DAY);
+
+  if (todayUTC < PACT_START) {
+    elapsedDays = 0;
+    remainingDays = totalDays;
+  } else if (todayUTC >= PACT_END) {
+    elapsedDays = totalDays;
+    remainingDays = 0;
+  } else {
+    elapsedDays = Math.max(0, Math.min(totalDays, elapsedDays));
+    remainingDays = Math.max(0, Math.min(totalDays, remainingDays));
+  }
+
+  const meta = document.querySelector('#overviewView .meta-row');
+  if (meta) {
+    const spans = meta.querySelectorAll('span, strong');
+    if (spans.length >= 2) {
+      spans[0].textContent = '15 Oct. 2026 — 23 Jan. 2027';
+      spans[1].textContent = `Day ${elapsedDays} of 100`;
+    }
+  }
+
+  const remainingEl = document.querySelector('.hero-stat .big-number');
+  if (remainingEl) remainingEl.textContent = remainingDays;
+
+  const remainingLabel = document.querySelector('.hero-stat .muted');
+  if (remainingLabel) remainingLabel.textContent = remainingDays === 1 ? 'day remaining' : 'days remaining';
+}
+
+updatePactTimeline();
