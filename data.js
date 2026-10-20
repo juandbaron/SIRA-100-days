@@ -77,7 +77,7 @@ const MOCK_ACTIONS = [
     "title": "Tenir une liste unique de suivi des conditions de mise en vigueur avec le Gouvernement et la Banque mondiale",
     "owner": "MEFB / MENA-ETFP / World Bank",
     "status": "To confirm",
-    "progress": 77,
+    "progress": 78,
     "pactDay": 15,
     "deadlineType": "relative",
     "targetDate": "",
