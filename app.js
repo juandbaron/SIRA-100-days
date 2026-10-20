@@ -1,211 +1,31 @@
-
-const actions = MOCK_ACTIONS;
-const PACT_START = new Date(Date.UTC(2026, 9, 15));
-const PACT_END = new Date(Date.UTC(2027, 0, 23));
-const effectiveness = actions.filter(a=>a.type==='Effectiveness');
-const axisMeta = [["1. Effectiveness", "Legal and operational conditions required to reach effectiveness", "axis-blue", "✓"], ["2. PIU establishment & staffing", "Team, governance, focal points and implementation structure", "axis-purple", "◉"], ["3. Fiduciary, planning & ops", "Accounts, STEP, signatures, manuals, plans and audit", "axis-orange", "▦"], ["4. Administration & logistics", "Office, equipment, connectivity and administrative setup", "axis-green", "⌂"], ["5. Implementation launch", "First 20 procurements, partnerships, safeguards and contract mobilization", "axis-slate", "▶"]];
-const readiness = axisMeta.map(([title,sub,cls,icon])=>{
-  const subset=actions.filter(a=>a.axis===title);
-  return {title,sub,cls,icon,
-    progress:subset.length?Math.round(subset.reduce((n,a)=>n+(a.progress||0),0)/subset.length):0,
-    counts:[
-      subset.filter(a=>a.status==='Completed'||a.status==='On track').length,
-      subset.filter(a=>a.status==='At risk'||a.status==='To confirm').length,
-      subset.filter(a=>a.status==='Overdue').length
-    ]};
-});
-const statusClass = s => s==='Completed'||s==='On track'?'green':s==='At risk'||s==='To confirm'?'amber':'red';
-const statusLabel = s => `<span class="pill ${statusClass(s)}">${s}</span>`;
-
-function renderEffectiveness(){
-  const el=document.getElementById('effectivenessList');
-  el.innerHTML=effectiveness.map(a=>`<div class="list-card" data-action-id="${a.id}"><div class="list-top"><div><div class="status-line"><span class="dot ${statusClass(a.status)}"></span><div class="list-title">${a.title}</div></div><div class="list-meta">${a.owner}</div></div><div class="chevron">›</div></div><div class="list-footer">${statusLabel(a.status)}<span class="deadline">Target: ${a.timing}</span></div></div>`).join('');
-  bindActionCards();
-}
-
-function renderImplementationGroups(){
-  const el=document.getElementById('implementationGroupCards');
-  if(!el) return;
-
-  const groups=readiness.filter(r=>/^[2-5]\./.test(r.title));
-  el.innerHTML=groups.map(r=>{
-    const subset=actions.filter(a=>a.axis===r.title);
-    const completed=subset.filter(a=>a.status==='Completed').length;
-    const onTrack=subset.filter(a=>a.status==='On track').length;
-    const atRisk=subset.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
-    const overdue=subset.filter(a=>a.status==='Overdue').length;
-    const groupNo=r.title.split('.')[0];
-    const shortTitle=r.title.replace(/^\d+\.\s*/, '');
-
-    let state='To confirm', pill='amber';
-    if(overdue>0){ state='Overdue'; pill='red'; }
-    else if(atRisk===0 && subset.length>0){ state='On track'; pill='green'; }
-
-    return `<button class="card effectiveness-card group-progress-card grp${groupNo} clickable" data-group-title="${r.title}">
-      <div class="card-icon">${groupNo}</div>
-      <div class="grow">
-        <div class="row-between"><strong>${shortTitle}</strong><strong>${r.progress}%</strong></div>
-        <div class="progress-bar compact"><span style="width:${r.progress}%"></span></div>
-      </div>
-      <div class="chevron">›</div>
-    </button>`;
-  }).join('');
-
-  bindGroupCards();
-}
-
-function bindGroupCards(){
-  document.querySelectorAll('[data-group-title]').forEach(el=>{
-    el.addEventListener('click',()=>openGroup(el.dataset.groupTitle));
-  });
-}
-
-function openGroup(title){
-  const meta=readiness.find(r=>r.title===title);
-  const subset=actions.filter(a=>a.axis===title);
-  if(!meta) return;
-
-  const completed=subset.filter(a=>a.status==='Completed').length;
-  const onTrack=subset.filter(a=>a.status==='On track').length;
-  const atRisk=subset.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
-  const overdue=subset.filter(a=>a.status==='Overdue').length;
-
-  document.getElementById('groupViewTitle').textContent=title;
-  document.getElementById('groupViewSummary').innerHTML=`
-    <div class="row-between"><strong>${completed} of ${subset.length} completed</strong><strong>${meta.progress}%</strong></div>
-    <div class="progress-bar"><span style="width:${meta.progress}%"></span></div>
-    <div class="summary-note">
-      <span>${onTrack} on track</span>
-      <span>${atRisk} at risk/to confirm</span>
-      <span>${overdue} overdue</span>
-    </div>
-    <p>${meta.sub}</p>`;
-
-  document.getElementById('groupActionList').innerHTML=subset.map(actionCard).join('');
-  bindActionCards();
-  showView('group');
-}
-
-function actionCard(a){
-  return `<div class="list-card" data-action-id="${a.id}"><div class="list-top"><div><div class="status-line"><span class="dot ${statusClass(a.status)}"></span><div>${statusLabel(a.status)}</div></div><div class="list-title" style="margin-top:8px">${a.id} · ${a.title}</div><div class="list-meta">${a.owner}<br>${a.axis}</div></div><div class="chevron">›</div></div><div class="list-footer"><span class="deadline">${a.timing}</span><strong>${a.progress||0}%</strong></div></div>`;
-}
-function bindActionCards(){document.querySelectorAll('[data-action-id]').forEach(el=>el.addEventListener('click',()=>openAction(el.dataset.actionId)));}
-function renderActions(){
-  const q=document.getElementById('searchInput').value.toLowerCase().trim();
-  const status=document.getElementById('statusFilter').value;
-  const group=document.getElementById('groupFilter').value;
-  const filtered=actions.filter(a=>(status==='all'||a.status===status)&&(group==='all'||a.axis===group)&&(!q||`${a.title} ${a.owner} ${a.axis} ${a.basis} ${a.info}`.toLowerCase().includes(q)));
-  document.getElementById('actionsList').innerHTML=filtered.length?filtered.map(actionCard).join(''):'<div class="list-card no-click">No actions match the filters.</div>';
-  bindActionCards();
-}
-function openAction(id){
-  const a=actions.find(x=>String(x.id)===String(id)); if(!a)return;
-  document.getElementById('detailContent').innerHTML=`<div class="detail-card">${statusLabel(a.status)}<h2>${a.id} · ${a.title}</h2>
-    <div class="detail-row"><div class="detail-label">Responsible institution</div><div class="detail-value">${a.owner}</div></div>
-    <div class="detail-row"><div class="detail-label">Group</div><div class="detail-value">${a.axis}</div></div>
-    <div class="detail-row"><div class="detail-label">Target timing</div><div class="detail-value">${a.timing}</div></div>
-    <div class="detail-row"><div class="detail-label">Basis</div><div class="detail-value">${a.basis}</div></div>
-    <div class="detail-row"><div class="detail-label">Progress</div><div class="detail-value"><strong>${a.progress||0}%</strong><div class="progress-bar"><span style="width:${a.progress||0}%"></span></div></div></div>
-    <div class="detail-highlight"><div class="detail-label">Blocker / decision needed</div><div class="detail-value">${a.blocker}</div></div>
-    <div class="detail-row"><div class="detail-label">Next step</div><div class="detail-value">${a.next}</div></div>
-    <div class="detail-row"><div class="detail-label">Evidence of completion</div><div class="detail-value">${a.evidence}</div></div>
-    <div class="detail-row"><div class="detail-label">Additional information required</div><div class="detail-value">${a.info}</div></div>
-  </div>`;
-  showView('detail');
-}
-function renderInfo(){
-  document.getElementById('infoList').innerHTML=INFO_GAPS.map((x,i)=>`<div class="list-card no-click"><div class="list-top"><div><div class="list-title">${i+1}. ${x}</div></div></div></div>`).join('');
-}
-function populateGroupFilter(){
-  const el=document.getElementById('groupFilter');
-  axisMeta.forEach(([title])=>{const o=document.createElement('option');o.value=title;o.textContent=title;el.appendChild(o);});
-}
-
-const drawer=document.getElementById('drawer'),scrim=document.getElementById('scrim');
-function openMenu(){drawer.classList.add('open');scrim.classList.add('show');drawer.setAttribute('aria-hidden','false')}
-function closeMenu(){drawer.classList.remove('open');scrim.classList.remove('show');drawer.setAttribute('aria-hidden','true')}
-document.getElementById('menuBtn').addEventListener('click',openMenu);
-document.getElementById('closeMenuBtn').addEventListener('click',closeMenu);
-scrim.addEventListener('click',closeMenu);
-function showView(name){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const target=document.getElementById(name+'View'); if(target)target.classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===name));
-  window.scrollTo({top:0,behavior:'smooth'}); closeMenu();
-}
-document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
-document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
-document.getElementById('detailBack').addEventListener('click',()=>showView('actions'));
-document.getElementById('groupBack').addEventListener('click',()=>showView('overview'));
-document.getElementById('statusFilter').addEventListener('change',renderActions);
-document.getElementById('groupFilter').addEventListener('change',renderActions);
-document.getElementById('searchInput').addEventListener('input',renderActions);
-
-populateGroupFilter(); renderEffectiveness(); renderImplementationGroups(); renderActions(); renderInfo();
-
-// Executive overview synchronization
-const avg=Math.round(actions.reduce((s,a)=>s+(a.progress||0),0)/actions.length);
-const doneEff=effectiveness.filter(a=>a.status==='Completed').length;
-const effPct=effectiveness.length?Math.round(doneEff/effectiveness.length*100):0;
-document.querySelector('.progress-ring').style.setProperty('--p',avg);
-document.querySelector('.progress-ring span').textContent=avg+'%';
-document.querySelector('.hero-card .progress-bar span').style.width=avg+'%';
-document.querySelector('[data-go="effectiveness"] .row-between strong:last-child').textContent=effPct+'%';
-const effSub=document.querySelector('.effectiveness-card .subtext');
-if(effSub) effSub.textContent=doneEff+' of '+effectiveness.length+' effectiveness actions confirmed completed';
-document.querySelector('[data-go="effectiveness"] .progress-bar span').style.width=effPct+'%';
-const statEls=document.querySelectorAll('.status-grid .mini-card strong');
-statEls[0].textContent=actions.filter(a=>a.status==='On track'||a.status==='Completed').length;
-statEls[1].textContent=actions.filter(a=>a.status==='At risk'||a.status==='To confirm').length;
-statEls[2].textContent=actions.filter(a=>a.status==='Overdue').length;
-
-// Effectiveness summary
-const es=document.querySelector('#effectivenessView .effectiveness-summary');
-if(es){
-  es.querySelector('.row-between strong:first-child').textContent=doneEff+' of '+effectiveness.length+' confirmed completed';
-  es.querySelector('.row-between strong:last-child').textContent=effPct+'%';
-  es.querySelector('.progress-bar span').style.width=effPct+'%';
-  es.querySelector('p').textContent='Status remains provisional until the Government/PIU provides the current effectiveness evidence.';
-}
-
-
-// Effectiveness target date
-document.querySelectorAll('.effectiveness-card .tiny span:last-child, #effectivenessView .summary-note span:last-child')
-  .forEach(el => el.textContent = 'Target date: 30 Nov. 2026');
-
-
-// Automatic pact timeline: updates whenever the dashboard opens.
-function updatePactTimeline(){
-  const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const now = new Date();
-  const todayUTC = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-
-  const totalDays = Math.round((PACT_END - PACT_START) / MS_PER_DAY); // 100
-  let elapsedDays = Math.floor((todayUTC - PACT_START) / MS_PER_DAY);
-  let remainingDays = Math.ceil((PACT_END - todayUTC) / MS_PER_DAY);
-
-  if (todayUTC < PACT_START) {
-    elapsedDays = 0;
-    remainingDays = totalDays;
-  } else if (todayUTC >= PACT_END) {
-    elapsedDays = totalDays;
-    remainingDays = 0;
-  } else {
-    elapsedDays = Math.max(0, Math.min(totalDays, elapsedDays));
-    remainingDays = Math.max(0, Math.min(totalDays, remainingDays));
-  }
-
-  const pactDatesEl = document.querySelector('.pact-dates');
-  if (pactDatesEl) pactDatesEl.textContent = '15 Oct. 2026 — 23 Jan. 2027';
-
-  const pactDayEl = document.querySelector('.pact-day');
-  if (pactDayEl) pactDayEl.textContent = `Day ${elapsedDays} of 100`;
-
-  const remainingEl = document.querySelector('.remaining-line .big-number');
-  if (remainingEl) remainingEl.textContent = remainingDays;
-
-  const remainingLabel = document.querySelector('.remaining-line .muted');
-  if (remainingLabel) remainingLabel.textContent = remainingDays === 1 ? 'day remaining' : 'days remaining';
-}
-
-updatePactTimeline();
+"use strict";
+(function(){
+const actions=typeof MOCK_ACTIONS!=='undefined'&&Array.isArray(MOCK_ACTIONS)?MOCK_ACTIONS:[];
+const groupNames=['1. Effectiveness','2. PIU establishment & staffing','3. Fiduciary, planning & ops','4. Administration & logistics','5. Implementation launch'];
+const groupLabels=['Mise en vigueur','Mise en place et personnel de l’UGP','Gestion fiduciaire, planification et opérations','Administration et logistique','Lancement des activités'];const DAY=86400000;const SETTINGS=typeof PACT_SETTINGS==='object'?PACT_SETTINGS:{};const START=SETTINGS.startDate||'2026-10-15';const DURATION=Math.max(1,Number(SETTINGS.durationDays)||100);const END=dateAdd(START,DURATION-1);const PROCUREMENT=typeof PRIORITY_PROCUREMENTS!=='undefined'?PRIORITY_PROCUREMENTS:[];
+let activeGroup=0,detailOrigin='groupView';
+const $=id=>document.getElementById(id);
+const clean=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function dateAdd(s,n){const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function parseDate(x){if(!/^\d{4}-\d{2}-\d{2}$/.test(x||''))return null;let d=new Date(x+'T12:00:00');return Number.isNaN(d.getTime())?null:d;}
+function dayNow(){let n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12);}
+function fmt(x){let d=parseDate(x);return d?d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'Non renseignée';}
+function schedule(a){let t=parseDate(targetDate(a)),d=parseDate(a.completedDate),completed=Boolean(d)||a.status==='Completed';if(!t)return {label:'Date needed',cls:'missing',delay:null};if(completed&&!d)return{label:'Completed (date needed)',cls:'missing',delay:null};let delta=Math.round(((d||dayNow())-t)/DAY);let label=d?(delta>0?'Completed late':'Completed on time'):(delta>0?'Overdue':delta>=-7?'Due soon':'On track');return {label,cls:{'Overdue':'overdue','Due soon':'soon','On track':'track','Completed late':'late','Completed on time':'ontime'}[label],delay:Math.max(0,delta)};}
+const trStatus={'To confirm':'À confirmer','On track':'En bonne voie','At risk':'À risque','Overdue':'En retard','Completed':'Terminé'};const trSchedule={'Date needed':'Date à renseigner','Completed (date needed)':'Terminé (date manquante)','Overdue':'En retard','Due soon':'Échéance proche','On track':'Dans les délais','Completed late':'Terminé en retard','Completed on time':'Terminé à temps'};const fr=x=>trStatus[x]||trSchedule[x]||x;function targetDate(a){if(a.deadlineType==='relative' && Number.isFinite(Number(a.pactDay))&&a.pactDay!==''&&a.pactDay!=null)return dateAdd(START,Number(a.pactDay)-1);return a.targetDate||'';}
+const badge=s=>`<span class="badge ${s.cls}">${clean(fr(s.label))}</span>`;
+function show(view){document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===view));window.scrollTo(0,0);$('menuPanel').hidden=true;$('menuBtn').setAttribute('aria-expanded','false');}
+function managementClass(s){return s==='Completed'||s==='On track'?'m-green':s==='Overdue'?'m-red':'m-amber';}
+function activityCard(a){const s=schedule(a);const group=clean(a.axis||'');const target=targetDate(a)?'Échéance : '+fmt(targetDate(a)):'Date à préciser';return `<button type="button" class="activity" data-action-id="${clean(a.id)}"><span class="grow"><span class="management-line"><i class="management-dot ${managementClass(a.status)}"></i><span class="management-pill ${managementClass(a.status)}">${clean(fr(a.status||'To confirm'))}</span>${s.label==='Overdue'||s.label==='Due soon'||s.label==='Completed late'?`<span class="badge ${s.cls}">${clean(fr(s.label))}${s.delay>0?' · '+s.delay+'d':''}</span>`:''}</span><strong class="act-title">${clean(a.id)} · ${clean(a.title)}</strong><span class="owner">${clean(a.owner||'Responsable à confirmer')}<br>${clean(groupLabels[Math.max(0,groupNames.indexOf(a.axis))])}</span><span class="act-foot"><small>${target}</small><strong>${Number(a.progress)||0}%</strong></span></span><span class="chev">›</span></button>`;}
+function groupSubset(i){return actions.filter(a=>a.axis===groupNames[i]);}
+function containsQuery(a,q){return `${a.id} ${a.title} ${a.owner} ${a.axis}`.toLowerCase().includes(q);}
+function fillGroup(){const list=groupSubset(activeGroup),sch=$('groupScheduleFilter').value,status=$('groupStatusFilter').value,q=$('groupSearch').value.toLowerCase().trim();const filtered=list.filter(a=>(sch==='all'||schedule(a).label===sch)&&(status==='all'||a.status===status)&&containsQuery(a,q));$('groupTitle').textContent=groupLabels[activeGroup];$('groupSummary').textContent=`${filtered.length} activités sur ${list.length}`;$('groupActions').innerHTML=filtered.map(activityCard).join('')||'<p class="subtle">Aucune activité ne correspond aux filtres.</p>';}
+function openGroup(i){i=Number(i);if(!Number.isInteger(i)||i<0||i>4)return;activeGroup=i;$('groupScheduleFilter').value='all';$('groupStatusFilter').value='all';$('groupSearch').value='';fillGroup();show('groupView');}
+function fillAll(){const sch=$('allScheduleFilter').value,status=$('statusFilter').value,grp=$('allGroupFilter').value,q=$('search').value.toLowerCase().trim();const result=actions.filter(a=>(grp==='all'||a.axis===grp)&&(sch==='all'||schedule(a).label===sch)&&(status==='all'||a.status===status)&&containsQuery(a,q));$('allActions').innerHTML=result.map(activityCard).join('')||'<p class="subtle">Aucune activité trouvée.</p>';}
+function detail(id){const a=actions.find(x=>String(x.id)===String(id));if(!a)return;let s=schedule(a);detailOrigin=$('allView').classList.contains('active')?'allView':'groupView';let rows=[['Groupe',groupLabels[Math.max(0,groupNames.indexOf(a.axis))]],['Responsable',a.owner],['Statut',fr(a.status)],['Avancement',String(a.progress||0)+'%'],['Jour du pacte',a.pactDay!==''&&a.pactDay!=null?'J+'+String(a.pactDay):'Non renseigné'],['Date cible calculée',fmt(targetDate(a))],['Situation du calendrier',fr(s.label)],['Retard (jours)',s.delay===null?'—':String(s.delay)],['Date réelle de réalisation',fmt(a.completedDate)],['Blocage / décision attendue',a.blocker],['Prochaine étape',a.next]];$('detailContent').innerHTML=`<div class="detail">${badge(s)}<h2>${clean(a.id)} · ${clean(a.title)}</h2>${rows.map(([k,v])=>`<div class="detailrow"><label>${clean(k)}</label>${clean(v||'—')}</div>`).join('')}</div>`;show('detailView');}
+function update(){const total=DURATION,remain=Math.min(total,Math.max(0,Math.ceil((parseDate(END)-dayNow())/DAY)+1)),elapsed=total-remain;const overall=actions.length?Math.round(actions.reduce((n,a)=>n+(Number(a.progress)||0),0)/actions.length):0;$('daysLeft').textContent=remain;$('dayElapsed').textContent=`Jour ${elapsed} sur ${total}`;document.querySelector('.dates strong').textContent=fmt(START)+' — '+fmt(END);$('overallPct').textContent=overall+'%';$('ring').style.background=`conic-gradient(#53b684 ${overall}%, #e7edf3 0)`;$('overallBar').style.width=overall+'%';
+for(let i=0;i<5;i++){let card=$('groupCards').querySelector(`[data-group="${i}"]`),subset=groupSubset(i),pct=subset.length?Math.round(subset.reduce((n,a)=>n+(Number(a.progress)||0),0)/subset.length):0;card.querySelector('.group-percent').textContent=pct+'%';card.querySelector('.tinybar i').style.width=pct+'%';}
+let onTrack=actions.filter(a=>a.status==='On track'||a.status==='Completed').length,atRisk=actions.filter(a=>a.status==='At risk'||a.status==='To confirm').length,overdue=actions.filter(a=>schedule(a).label==='Overdue').length;let stats=$('managementSummary').querySelectorAll('.stat strong');stats[0].textContent=onTrack;stats[1].textContent=atRisk;stats[2].textContent=overdue;}
+function renderProc(){const q=$('procSearch').value.toLowerCase().trim(),stage=$('procStage').value;const items=PROCUREMENT.filter(p=>(stage==='all'||p.stage===stage)&&`${p.id} ${p.title} ${p.owner} ${p.stage}`.toLowerCase().includes(q));$('procList').innerHTML=items.length?items.map(p=>{const t=p.deadlineType==='relative'&&p.pactDay!==''?dateAdd(START,Number(p.pactDay)-1):p.targetDate||'';const d=parseDate(t),done=parseDate(p.completedDate),days=d?Math.max(0,Math.round(((done||dayNow())-d)/DAY)):null;return `<div class="proc-card"><strong>${clean(p.id)} · ${clean(p.title||'Marché à définir')}</strong><div class="meta">Responsable : ${clean(p.owner||'À renseigner')}<br>Étape : ${clean(p.stage||'À renseigner')}<br>Date cible : ${fmt(t)}<br>Montant : ${clean(p.amount||'À renseigner')}</div>${days>0?`<span class="badge overdue">${days} jours de retard</span>`:''}</div>`}).join(''):'<p class="subtle">Aucun marché renseigné ou correspondant aux filtres.</p>';}
+function init(){document.addEventListener('click',e=>{let group=e.target.closest('button[data-group]');if(group){e.preventDefault();openGroup(group.dataset.group);return;}let act=e.target.closest('button[data-action-id]');if(act){e.preventDefault();detail(act.dataset.actionId);return;}let nav=e.target.closest('button[data-view]');if(nav){e.preventDefault();if(nav.dataset.view==='allView')fillAll();if(nav.dataset.view==='procView')renderProc();show(nav.dataset.view);}});$('groupBack').addEventListener('click',()=>show('overview'));$('allBack').addEventListener('click',()=>show('overview'));$('detailBack').addEventListener('click',()=>{if(detailOrigin==='allView'){fillAll();show('allView');}else{fillGroup();show('groupView');}});$('procBtn').addEventListener('click',()=>{renderProc();show('procView');});$('procBack').addEventListener('click',()=>show('overview'));$('procSearch').addEventListener('input',renderProc);$('procStage').addEventListener('change',renderProc);$('procStage').innerHTML+=[...new Set(PROCUREMENT.map(p=>p.stage).filter(Boolean))].map(x=>`<option>${clean(x)}</option>`).join('');$('allBtn').addEventListener('click',()=>{fillAll();show('allView');});$('groupScheduleFilter').addEventListener('change',fillGroup);$('groupStatusFilter').addEventListener('change',fillGroup);$('groupSearch').addEventListener('input',fillGroup);$('allGroupFilter').innerHTML += groupNames.map((x,i)=>`<option value="${clean(x)}">${clean(groupLabels[i])}</option>`).join('');$('allGroupFilter').addEventListener('change',fillAll);$('allScheduleFilter').addEventListener('change',fillAll);$('statusFilter').addEventListener('change',fillAll);$('search').addEventListener('input',fillAll);$('menuBtn').addEventListener('click',()=>{const p=$('menuPanel');p.hidden=!p.hidden;$('menuBtn').setAttribute('aria-expanded',String(!p.hidden));});document.querySelectorAll('select option').forEach(o=>{if(trStatus[o.textContent])o.textContent=fr(o.textContent);else if(trSchedule[o.textContent])o.textContent=fr(o.textContent);});update();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
